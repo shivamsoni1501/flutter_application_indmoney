@@ -56,6 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    isGenerateCall = true;
     super.initState();
   }
 
@@ -63,17 +64,6 @@ class _MyHomePageState extends State<MyHomePage> {
     W = int.tryParse(_controller1.text.toString()) ?? 7;
     L = int.tryParse(_controller2.text.toString()) ?? 7;
     getPositions();
-
-    Size size = MediaQuery.of(context).size;
-    cellWidth = size.width / W;
-    if (cellWidth * L > size.height - 200) {
-      cellWidth = (size.height - 200) / L;
-    }
-
-    firstPosW = cellWidth * wpos;
-    firstPosL = cellWidth * lpos;
-    secondPosW = cellWidth * swpos;
-    secondPosL = cellWidth * slpos;
   }
 
   getPositions() async {
@@ -98,70 +88,97 @@ class _MyHomePageState extends State<MyHomePage> {
         slpos += 1;
       }
     }
+
+    Size size = MediaQuery.of(context).size;
+    cellWidth = size.width / W;
+    if (cellWidth * L > size.height - 200) {
+      cellWidth = (size.height - 200) / L;
+    }
+
+    firstPosW = cellWidth * wpos;
+    firstPosL = cellWidth * lpos;
+    secondPosW = cellWidth * swpos;
+    secondPosL = cellWidth * slpos;
   }
 
+  bool isGenerateCall = false;
+  bool isChangeCall = false;
   @override
   Widget build(BuildContext context) {
-    generate();
-    return Scaffold(
-      body: Column(
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: SizedBox(
-                  height: 150,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextField(
-                        decoration: InputDecoration(hintText: 'Width'),
-                        controller: _controller1,
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      TextField(
-                        decoration: InputDecoration(hintText: 'Height'),
-                        controller: _controller2,
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {});
-                        },
-                        child: Text('Generate Grid'),
-                      ),
-                    ],
+    if (isGenerateCall) {
+      generate();
+      isGenerateCall = false;
+    }
+    if (isChangeCall) {
+      getPositions();
+      isChangeCall = false;
+    }
+    return SafeArea(
+      child: Scaffold(
+        body: Column(
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: SizedBox(
+                    height: 170,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          decoration: InputDecoration(hintText: 'Width'),
+                          controller: _controller1,
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        TextField(
+                          decoration: InputDecoration(hintText: 'Height'),
+                          controller: _controller2,
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              isGenerateCall = true;
+                            });
+                          },
+                          child: Text('Generate Grid'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: Stack(
-              children: [
-                Positioned(left: firstPosW, top: firstPosL, child: FirstW()),
-                Positioned(left: secondPosW, top: secondPosL, child: secondW()),
               ],
             ),
-          ),
-          SizedBox(
-            height: 50,
-            child: Align(
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {});
-                  },
-                  child: Text('Change Position')),
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned(left: firstPosW, top: firstPosL, child: FirstW()),
+                  Positioned(
+                      left: secondPosW, top: secondPosL, child: secondW()),
+                ],
+              ),
             ),
-          ),
-        ],
+            SizedBox(
+              height: 30,
+              child: Align(
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        isChangeCall = true;
+                      });
+                    },
+                    child: Text('Change Position')),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
